@@ -18,6 +18,9 @@ typedef struct
     char name[50];
 } Player;
 
+Player playerOne;
+Player playerTwo;
+
 Player createPlayer(char symbol, const char *name)
 {
     Player newPlayer;
@@ -31,27 +34,40 @@ Player initializePlayer(char symbol)
 {
     char playerName[50];
 
-    printf("Please enter name for player %c:\n", symbol);
+    printf("Please enter name for Player %c:\n", symbol);
     fgets(playerName, sizeof(playerName), stdin);
     playerName[strcspn(playerName, "\n")] = 0; // Remove newline character
 
     return createPlayer(symbol, playerName);
 }
 
-_Bool hasWon = 0;
-char board[] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
-char turn = 'X';
+char board[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8'};
 
-_Bool checkMovesLeft()
+char insertMark(char board[], Player *turn)
 {
+    int index;
+    printf("Player turn: %s\nPlease type the number you want to mark: ", turn->name);
+    scanf("%d", &index);
+    getchar();
+    board[index] = turn->symbol;
+    // TODO: Add validation for index and check if the position is already taken
 }
 
-char findBoardMark()
+void switchTurn(Player **turn)
 {
+    if ((*turn)->symbol == playerOne.symbol)
+    {
+        *turn = &playerTwo;
+    }
+    else
+    {
+        *turn = &playerOne;
+    }
 }
 
 void drawBoard(char board[])
 {
+    printf("\n---------------------------\n");
     printf("\n");
     for (int i = 0; i < 9; i++)
     {
@@ -66,10 +82,32 @@ void drawBoard(char board[])
         }
     }
     printf("\n");
+    printf("\n---------------------------\n\n");
 }
 
 _Bool checkForWin()
 {
+    int winCombinations[8][3] = {
+        {0, 1, 2},
+        {3, 4, 5},
+        {6, 7, 8},
+        {0, 3, 6},
+        {1, 4, 7},
+        {2, 5, 8},
+        {0, 4, 8},
+        {2, 4, 6}};
+
+    for (int i = 0; i < 8; i++)
+    {
+        if (board[winCombinations[i][0]] != ' ' &&
+            board[winCombinations[i][0]] == board[winCombinations[i][1]] &&
+            board[winCombinations[i][1]] == board[winCombinations[i][2]])
+        {
+            return 1; // A winning combination has been found
+        }
+    }
+
+    return 0; // No winning combination found
 }
 
 void markBoard()
@@ -85,24 +123,43 @@ void clearScreen()
 #endif
 }
 
-
 int main()
 {
-    // Initialize players
-    Player playerOne = initializePlayer('X');
-    Player playerTwo = initializePlayer('O');
-
-    printf("Clearing the screen...\n");
+    // Clear console on game initialise.
     clearScreen();
 
+    // Initialize players
+    playerOne = initializePlayer('X');
+    playerTwo = initializePlayer('O');
+
+    Player *turn = &playerOne;
+
+    // Wait for players ready
+    clearScreen();
     printf("Press enter when you are ready to start.\n");
     getchar(); // Wait for user to press enter
     clearScreen();
 
-    printf("\n---------------------------\n");
-    drawBoard(board);
-    printf("\n---------------------------\n");
+    _Bool hasWon = 0;
+    while (!hasWon)
+    {
+        drawBoard(board);        // redraw board after each move
+        insertMark(board, turn); // make move
+        hasWon = checkForWin(); // check for win or draw after each move
+
+        if (hasWon)
+        {
+            clearScreen();
+            drawBoard(board);
+            printf("%s wins!\n Exiting...\n", turn->name);
+            break; // Exit the loop if someone has won
+        }
+
+        // TODO: Implement and check for a draw condition
+
+        clearScreen(); // clear screen after each move
+        switchTurn(&turn); // switch turn after each move
+    }
 
     return 0;
-
 }
