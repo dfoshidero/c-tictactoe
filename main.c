@@ -10,9 +10,33 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-char playerOne = 'X';
-char playerTwo = 'O';
+typedef struct
+{
+    char symbol;
+    char name[50];
+} Player;
+
+Player createPlayer(char symbol, const char *name)
+{
+    Player newPlayer;
+    newPlayer.symbol = symbol;
+    strcpy(newPlayer.name, name);
+    newPlayer.name[sizeof(newPlayer.name) - 1] = '\0'; // Ensure null-termination
+    return newPlayer;
+}
+
+Player initializePlayer(char symbol)
+{
+    char playerName[50];
+
+    printf("Please enter name for player %c:\n", symbol);
+    fgets(playerName, sizeof(playerName), stdin);
+    playerName[strcspn(playerName, "\n")] = 0; // Remove newline character
+
+    return createPlayer(symbol, playerName);
+}
 
 _Bool hasWon = 0;
 char board[] = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
@@ -52,8 +76,33 @@ void markBoard()
 {
 }
 
+void clearScreen()
+{
+#ifdef _WIN32
+    system("cls");
+#else
+    system("clear");
+#endif
+}
+
+
 int main()
 {
+    // Initialize players
+    Player playerOne = initializePlayer('X');
+    Player playerTwo = initializePlayer('O');
+
+    printf("Clearing the screen...\n");
+    clearScreen();
+
+    printf("Press enter when you are ready to start.\n");
+    getchar(); // Wait for user to press enter
+    clearScreen();
+
+    printf("\n---------------------------\n");
     drawBoard(board);
+    printf("\n---------------------------\n");
+
     return 0;
+
 }
