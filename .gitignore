@@ -1,0 +1,15 @@
+# Ignore all .exe files
+*.exe
+
+# Ignore all .o files (object files)
+*.o
+
+# Ignore temporary files created by code runners or editors
+*tempCodeRunnerFile*
+
+# Additionally, if you want to ignore all files in a specific directory, you could do something like this:
+# Ignore everything in the bin/ directory
+/bin/
+
+# Or, if you only want to ignore files in the root of the project, but not in subdirectories:
+/*.exe
