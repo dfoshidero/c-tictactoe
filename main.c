@@ -43,16 +43,6 @@ Player initializePlayer(char symbol)
 
 char board[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8'};
 
-char insertMark(char board[], Player *turn)
-{
-    int index;
-    printf("Player turn: %s\nPlease type the number you want to mark: ", turn->name);
-    scanf("%d", &index);
-    getchar();
-    board[index] = turn->symbol;
-    // TODO: Add validation for index and check if the position is already taken
-}
-
 void switchTurn(Player **turn)
 {
     if ((*turn)->symbol == playerOne.symbol)
@@ -110,10 +100,6 @@ _Bool checkForWin()
     return 0; // No winning combination found
 }
 
-void markBoard()
-{
-}
-
 void clearScreen()
 {
 #ifdef _WIN32
@@ -121,6 +107,32 @@ void clearScreen()
 #else
     system("clear");
 #endif
+}
+
+void insertMark(char board[], Player *turn)
+{
+    int index;
+    _Bool validInput = 0;
+
+    while (!validInput)
+    {
+        printf("Player turn: %s (%c)\nPlease type the number (0-8) you want to mark: ", turn->name, turn->symbol);
+        scanf("%d", &index);
+        getchar(); // Consume the newline character
+
+        // Check if the index is within range and the position is not already taken
+        if (index >= 0 && index < 9 && board[index] != 'X' && board[index] != 'O')
+        {
+            board[index] = turn->symbol;
+            validInput = 1;
+        }
+        else
+        {
+            clearScreen();
+            drawBoard(board);
+            printf("Invalid position: already filled, or out of bounds. Please try again.\n");
+        }
+    }
 }
 
 int main()
@@ -151,7 +163,7 @@ int main()
         {
             clearScreen();
             drawBoard(board);
-            printf("%s wins!\n Exiting...\n", turn->name);
+            printf("%s wins!\nExiting...\n", turn->name);
             break; // Exit the loop if someone has won
         }
 
